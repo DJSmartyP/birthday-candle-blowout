@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#361c68">
+  <meta name="description" content="A cheerful birthday cake game: tap every candle before they relight.">
+  <title>Candle Dash — Birthday Cake Game</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-icon" aria-hidden="true">✦</span> CANDLE DASH</div>
+      <span class="top-note">A tiny birthday challenge</span>
+    </header>
+
+    <section class="intro" aria-labelledby="game-title">
+      <span class="eyebrow">MAKE A WISH · BEAT THE FLAMES</span>
+      <h1 id="game-title">Blow out the <em>birthday</em> candles!</h1>
+      <p>Tap each flame before the candles relight. Get them all out at once to win.</p>
+    </section>
+
+    <section class="game-card" aria-label="Birthday candle game">
+      <div class="game-toolbar">
+        <label for="level">LEVEL <span class="select-wrap"><select id="level">
+          <option value="1">Level 1 · 5 candles</option>
+        </select></span></label>
+        <button id="restart" type="button" class="reset-button" aria-label="Restart level">↻ <span>Start over</span></button>
+      </div>
+
+      <div class="scene" id="scene">
+        <div class="scene-glow" aria-hidden="true"></div>
+        <div class="scene-stars" aria-hidden="true">✳ <span>✦</span> ✳ <span>✧</span></div>
+        <div id="candles" class="candles" aria-label="Candles on the birthday cake"></div>
+        <div class="cake" aria-hidden="true">
+          <div class="icing icing-top"></div>
+          <div class="cake-layer top-layer"><span class="sprinkles">✦ &nbsp; • &nbsp; ✦ &nbsp; • &nbsp; ✦</span></div>
+          <div class="filling"></div>
+          <div class="cake-layer bottom-layer"></div>
+          <div class="icing icing-bottom"></div>
+          <div class="cake-plate"></div>
+        </div>
+      </div>
+
+      <div class="status-row">
+        <div class="progress-copy"><strong id="count">0 / 5</strong><span>CANDLES OUT</span></div>
+        <div class="progress-track" role="progressbar" id="progress" aria-label="Candles blown out" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><span id="progress-fill"></span></div>
+        <div class="level-copy" id="level-hint">Relights in 6 seconds</div>
+      </div>
+      <p id="message" class="message" role="status" aria-live="polite">Tap a flame to blow it out!</p>
+    </section>
+
+    <footer>Made for birthdays, quick fingers, and one very big wish. <span aria-hidden="true">♥</span></footer>
+  </main>
+
+  <div id="win-dialog" class="win-overlay" hidden>
+    <div class="win-card" role="dialog" aria-modal="true" aria-labelledby="win-title" aria-describedby="win-copy">
+      <div class="win-stars" aria-hidden="true">✦ ✳ ✦</div>
+      <div class="win-emoji" aria-hidden="true">🎉</div>
+      <h2 id="win-title">Wish granted!</h2>
+      <p id="win-copy">You blew out every candle!</p>
+      <div class="win-actions">
+        <button id="play-again" type="button" class="button-secondary">Play again</button>
+        <button id="next-level" type="button" class="button-primary">Next level →</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
