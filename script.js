@@ -1,14 +1,14 @@
 const LEVELS = Array.from({ length: 25 }, (_, index) => ({
   number: index + 1,
   count: 5 + index,
-  relightMs: 6000 - index * 50
+  relightMs: Math.round(5000 - index * (3500 / 24))
 }));
 const COLORS = ['#81d7db', '#ffd16e', '#bd99e5', '#f89ab8', '#9bddad', '#ffae80'];
 const els = {
   level: document.querySelector('#level'), restart: document.querySelector('#restart'),
   candles: document.querySelector('#candles'), count: document.querySelector('#count'),
   progress: document.querySelector('#progress'), fill: document.querySelector('#progress-fill'),
-  hint: document.querySelector('#level-hint'), message: document.querySelector('#message'),
+  message: document.querySelector('#message'), scene: document.querySelector('#scene'),
   dialog: document.querySelector('#win-dialog'), playAgain: document.querySelector('#play-again'),
   nextLevel: document.querySelector('#next-level'), winCopy: document.querySelector('#win-copy')
 };
@@ -16,6 +16,7 @@ const els = {
 let candles = [];
 let won = false;
 let lastFocused = null;
+let sweeping = false;
 
 function updateStatus() {
   const out = candles.filter(candle => candle.out).length;
@@ -30,7 +31,7 @@ function updateStatus() {
 function renderCandle(candle) {
   candle.button.classList.toggle('out', candle.out);
   candle.button.classList.toggle('urgent', candle.out && !won);
-  candle.button.setAttribute('aria-label', `Candle ${candle.index + 1}: ${candle.out ? 'out, relighting soon' : 'lit, tap to blow out'}`);
+  candle.button.setAttribute('aria-label', `Candle ${candle.index + 1}: ${candle.out ? 'out' : 'lit, tap to blow out'}`);
 }
 
 function blowOut(candle) {
@@ -73,6 +74,7 @@ function closeWin() {
 function start() {
   candles.forEach(candle => window.clearTimeout(candle.timer));
   won = false;
+  sweeping = false;
   els.dialog.hidden = true;
   const level = LEVELS[Number(els.level.value) - 1];
   els.candles.replaceChildren();
@@ -90,13 +92,27 @@ function start() {
     renderCandle(candle);
     return candle;
   });
-  els.hint.textContent = `Relights in ${(level.relightMs / 1000).toFixed(1)} seconds`;
-  els.message.textContent = 'Tap a flame to blow it out!';
+  els.message.textContent = 'Tap or sweep across the flames!';
   updateStatus();
 }
 
 els.level.addEventListener('change', start);
 els.restart.addEventListener('click', start);
+els.scene.addEventListener('pointerdown', event => {
+  const button = event.target.closest('.candle');
+  if (!button) return;
+  sweeping = true;
+  const candle = candles.find(item => item.button === button);
+  if (candle) blowOut(candle);
+});
+els.scene.addEventListener('pointermove', event => {
+  if (!sweeping) return;
+  const button = document.elementFromPoint(event.clientX, event.clientY)?.closest('.candle');
+  const candle = candles.find(item => item.button === button);
+  if (candle) blowOut(candle);
+});
+window.addEventListener('pointerup', () => { sweeping = false; });
+window.addEventListener('pointercancel', () => { sweeping = false; });
 els.playAgain.addEventListener('click', () => { closeWin(); start(); });
 els.nextLevel.addEventListener('click', () => {
   const next = Number(els.level.value) + 1;
