@@ -2,5 +2,8 @@
 select{font-family:inherit;font-weight:800}.candles.dense{width:min(76%,510px);top:32px;row-gap:16px;column-gap:clamp(2px,.6vw,6px)}.candles.dense .candle{height:43px;width:clamp(14px,2.6vw,21px)}@media(max-width:600px){.candles.dense{width:85%;top:25px;row-gap:12px}.candles.dense .candle{height:37px;width:14px}}
 
 /* Keep the whole cake in the first view and give candle rows more space. */
-.game-shell{padding-top:12px}.intro{margin:18px auto 16px}.intro h1{font-size:clamp(36px,5vw,53px);margin:8px 0 10px}.intro p{font-size:15px}.game-toolbar{height:62px}.scene{height:390px}.cake{bottom:17px;height:145px}.candles{top:65px;height:195px}.candles.many{top:35px;height:220px}.candles.dense{top:27px;height:228px}.candle{touch-action:none}.status-row{padding-top:17px}
+.game-shell{padding-top:12px}.intro{margin:18px auto 16px}.intro h1{font-size:clamp(36px,5vw,53px);margin:8px 0 10px}.intro p{font-size:15px}.game-toolbar{height:62px}.scene{height:390px}.cake{bottom:17px;height:145px}.candles{top:65px;height:195px}.candles.many{top:35px;height:220px}.candles.dense{top:27px;height:228px}.status-row{padding-top:17px}
 @media(max-width:600px){.game-shell{padding-top:12px}.intro{margin:18px 7px 16px}.intro h1{font-size:clamp(32px,9vw,42px)}.intro p{font-size:14px}.game-toolbar{height:62px}.scene{height:380px}.cake{bottom:17px}.candles{top:55px;height:190px}.candles.many{top:25px;height:215px}.candles.dense{top:22px;height:220px}}
+
+/* Each candle requires its own tap; saved candles stay visibly extinguished. */
+.candle.locked{filter:saturate(.72) brightness(1.04)}.candle.locked:after{content:"✦";color:#7d55a9;font-size:14px}.candle.locked .wick{background:#7d55a9}

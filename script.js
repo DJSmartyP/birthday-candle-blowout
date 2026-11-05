@@ -1,14 +1,15 @@
 const LEVELS = Array.from({ length: 25 }, (_, index) => ({
   number: index + 1,
   count: 5 + index,
-  relightMs: Math.round(5000 - index * (3500 / 24))
+  relightMs: Math.round(3000 - index * (1500 / 24))
 }));
+const CHECKPOINT_SIZE = 6;
 const COLORS = ['#81d7db', '#ffd16e', '#bd99e5', '#f89ab8', '#9bddad', '#ffae80'];
 const els = {
   level: document.querySelector('#level'), restart: document.querySelector('#restart'),
   candles: document.querySelector('#candles'), count: document.querySelector('#count'),
   progress: document.querySelector('#progress'), fill: document.querySelector('#progress-fill'),
-  message: document.querySelector('#message'), scene: document.querySelector('#scene'),
+  message: document.querySelector('#message'),
   dialog: document.querySelector('#win-dialog'), playAgain: document.querySelector('#play-again'),
   nextLevel: document.querySelector('#next-level'), winCopy: document.querySelector('#win-copy')
 };
@@ -16,7 +17,6 @@ const els = {
 let candles = [];
 let won = false;
 let lastFocused = null;
-let sweeping = false;
 
 function updateStatus() {
   const out = candles.filter(candle => candle.out).length;
@@ -30,8 +30,9 @@ function updateStatus() {
 
 function renderCandle(candle) {
   candle.button.classList.toggle('out', candle.out);
-  candle.button.classList.toggle('urgent', candle.out && !won);
-  candle.button.setAttribute('aria-label', `Candle ${candle.index + 1}: ${candle.out ? 'out' : 'lit, tap to blow out'}`);
+  candle.button.classList.toggle('urgent', candle.out && !candle.locked && !won);
+  candle.button.classList.toggle('locked', candle.locked);
+  candle.button.setAttribute('aria-label', `Candle ${candle.index + 1}: ${candle.locked ? 'out, saved' : candle.out ? 'out' : 'lit, click to blow out'}`);
 }
 
 function blowOut(candle) {
@@ -40,6 +41,17 @@ function blowOut(candle) {
   renderCandle(candle);
   updateStatus();
   if (won) return;
+  const active = candles.filter(item => item.out && !item.locked);
+  if (active.length >= CHECKPOINT_SIZE) {
+    active.forEach(item => {
+      window.clearTimeout(item.timer);
+      item.timer = null;
+      item.locked = true;
+      renderCandle(item);
+    });
+    els.message.textContent = 'Six candles saved! Keep clicking the rest.';
+    return;
+  }
   const delay = LEVELS[Number(els.level.value) - 1].relightMs;
   candle.timer = window.setTimeout(() => {
     candle.out = false;
@@ -74,7 +86,6 @@ function closeWin() {
 function start() {
   candles.forEach(candle => window.clearTimeout(candle.timer));
   won = false;
-  sweeping = false;
   els.dialog.hidden = true;
   const level = LEVELS[Number(els.level.value) - 1];
   els.candles.replaceChildren();
@@ -86,33 +97,18 @@ function start() {
     button.className = 'candle';
     button.style.setProperty('--candle-color', COLORS[index % COLORS.length]);
     button.innerHTML = '<span class="wick" aria-hidden="true"></span><span class="flame" aria-hidden="true"></span>';
-    const candle = { index, button, out: false, timer: null };
+    const candle = { index, button, out: false, locked: false, timer: null };
     button.addEventListener('click', () => blowOut(candle));
     els.candles.append(button);
     renderCandle(candle);
     return candle;
   });
-  els.message.textContent = 'Tap or sweep across the flames!';
+  els.message.textContent = 'Click each candle to blow it out!';
   updateStatus();
 }
 
 els.level.addEventListener('change', start);
 els.restart.addEventListener('click', start);
-els.scene.addEventListener('pointerdown', event => {
-  const button = event.target.closest('.candle');
-  if (!button) return;
-  sweeping = true;
-  const candle = candles.find(item => item.button === button);
-  if (candle) blowOut(candle);
-});
-els.scene.addEventListener('pointermove', event => {
-  if (!sweeping) return;
-  const button = document.elementFromPoint(event.clientX, event.clientY)?.closest('.candle');
-  const candle = candles.find(item => item.button === button);
-  if (candle) blowOut(candle);
-});
-window.addEventListener('pointerup', () => { sweeping = false; });
-window.addEventListener('pointercancel', () => { sweeping = false; });
 els.playAgain.addEventListener('click', () => { closeWin(); start(); });
 els.nextLevel.addEventListener('click', () => {
   const next = Number(els.level.value) + 1;
